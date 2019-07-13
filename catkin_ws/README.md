@@ -1,5 +1,5 @@
 ## read HIKVISION
->> cd catkin_ws<br>
+\>\> cd catkin_ws<br>
 >> roscore<br>
 
 source devel/setup.bash
