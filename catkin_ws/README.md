@@ -1,6 +1,7 @@
 ## read HIKVISION camera, send ros message and read ros message
 ### start host process
 \>\> cd catkin_ws<br>
+\>\> catkin_cmake
 \>\> roscore<br>
 
 ### send ros messag
