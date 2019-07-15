@@ -9,10 +9,15 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
     try
     {
+        /* 1.get image */
         cv::namedWindow("image",0);
         cv::imshow("image", cv_bridge::toCvShare(msg, "bgr8")->image);
+
+        /* 2.get timestamp */
+        cout << "[ " << msg->header.stamp << " ] " << "receive a image ok" << endl;
+
         cv::waitKey(1);
-        ROS_INFO("Show a image OK!");
+        // ROS_INFO("Show a image OK!");
     }    
     catch (cv_bridge::Exception& e)
     {
