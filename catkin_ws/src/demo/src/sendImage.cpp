@@ -28,14 +28,14 @@ static void initCameraPara(map<cv::String, cv::Mat> & ip_mtx,
     ip_dist[ip] = (Mat_<double>(1,5) << -0.5222, -0.2738, 0, 0, 0);  
 
     //camera 3
-    ip = "192.168.100.3";
+    ip = "192.168.2.101";
     ip_mtx[ip] = (Mat_<double>(3,3) << 2.6182e+03, 0, 973.1464, 
                                        0, 2.6228e+03, 571.7691,
                                        0, 0, 1);
     ip_dist[ip] = (Mat_<double>(1,5) << 0.5222, 0.2738, 0, 0, 0);  
 
     //camera 4
-    ip = "192.168.100.4";
+    ip = "192.168.1.101";
     ip_mtx[ip] = (Mat_<double>(3,3) << 2.6182e+03, 0, 973.1464, 
                                        0, 2.6228e+03, 571.7691,
                                        0, 0, 1);
@@ -64,8 +64,8 @@ static void readImagesWithPattern(cv::String pattern, vector<cv::Mat> &images)
     std::vector<cv::String> fn;
     cv::glob(pattern, fn, false);
 
-    for (const auto filename:fn) {
-        images.push_back(cv::imread(filename));
+    for ( int i=0; i < fn.size(); i++ ) {
+        images.push_back(cv::imread(fn[i]));
     }
 }
 
@@ -115,13 +115,14 @@ int main(int argc, char** argv)
         cv::String url=cv::String("rtsp://admin:aaron20127@") + address + "//Streaming/Channels/1";
         cap = cv::VideoCapture(url);
 
-        cout << "undistorting ..." << endl;
-        while (!image.empty()) {
+        cout << "finding undistort rectify map ..." << endl;
+        while (image.empty()) {
             cap >> image;
         }
+
         initCameraPara(ip_mtx, ip_dist);
         findUndistortRectifyMap(map1, map2, image.size(), ip_mtx[address], ip_dist[address]);
-        cout << "undistorting successfully ." << endl;
+        cout << "get map successfully ." << endl;
     } else {
         help();
         return 1;
