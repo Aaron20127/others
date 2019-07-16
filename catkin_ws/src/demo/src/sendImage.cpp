@@ -5,11 +5,61 @@
 #include <cv_bridge/cv_bridge.h>
 #include <stdio.h>
 
-//ubuntu 18.04
 
 using namespace std;
+using namespace cv;
 
-void readImagesWithPattern(cv::String pattern, vector<cv::Mat> &images)
+// init camera parameters 
+static void initCameraPara(map<cv::String, cv::Mat> & ip_mtx,
+                      map<cv::String, cv::Mat> & ip_dist)
+{
+    //camera 1
+    cv::String ip = "192.168.100.1";
+    ip_mtx[ip] = (Mat_<double>(3,3) << 2.6182e+03, 0, 973.1464, 
+                                                0, 2.6228e+03, 571.7691,
+                                                0, 0, 1);
+    ip_dist[ip] = (Mat_<double>(1,5) << -0.5222, -0.2738, 0, 0, 0);  
+
+    //camera 2
+    ip = "192.168.100.2";
+    ip_mtx[ip] = (Mat_<double>(3,3) << 2.6182e+03, 0, 973.1464, 
+                                              0, 2.6228e+03, 571.7691,
+                                            0, 0, 1);
+    ip_dist[ip] = (Mat_<double>(1,5) << -0.5222, -0.2738, 0, 0, 0);  
+
+    //camera 3
+    ip = "192.168.100.3";
+    ip_mtx[ip] = (Mat_<double>(3,3) << 2.6182e+03, 0, 973.1464, 
+                                       0, 2.6228e+03, 571.7691,
+                                       0, 0, 1);
+    ip_dist[ip] = (Mat_<double>(1,5) << 0.5222, 0.2738, 0, 0, 0);  
+
+    //camera 4
+    ip = "192.168.100.4";
+    ip_mtx[ip] = (Mat_<double>(3,3) << 2.6182e+03, 0, 973.1464, 
+                                       0, 2.6228e+03, 571.7691,
+                                       0, 0, 1);
+    ip_dist[ip] = (Mat_<double>(1,5) << -0.5222, -0.2738, 0, 0, 0);
+}
+
+static void findUndistortRectifyMap(cv::Mat &map1, cv::Mat &map2, 
+                                    cv::Size image_size, 
+                                    cv::Mat & mtx,
+                                    cv::Mat & dist)
+{
+    cv::Mat R;
+    cv::initUndistortRectifyMap(mtx, dist, R, mtx, image_size, CV_32FC1, map1, map2);
+}
+
+// undistort image
+static void undistortImage(const cv::Mat & src, cv::Mat & dst,
+                           const cv::Mat & map1, const cv::Mat & map2) 
+{       
+    cv::remap(src, dst, map1, map2, INTER_LINEAR);
+}
+
+// read images with pattern
+static void readImagesWithPattern(cv::String pattern, vector<cv::Mat> &images)
 {
     std::vector<cv::String> fn;
     cv::glob(pattern, fn, false);
@@ -48,6 +98,11 @@ int main(int argc, char** argv)
     cv::Mat image;
     vector<cv::Mat> images;
     cv::VideoCapture cap;
+
+    map<cv::String, cv::Mat> ip_mtx;
+    map<cv::String, cv::Mat> ip_dist;
+    cv::Mat map1, map2;
+
     if (cmd == 0) {
         /* read image form dir */
         readImagesWithPattern(address, images);
@@ -59,6 +114,14 @@ int main(int argc, char** argv)
         /* use rtsp  protocol to read HIKVISION camera */
         cv::String url=cv::String("rtsp://admin:aaron20127@") + address + "//Streaming/Channels/1";
         cap = cv::VideoCapture(url);
+
+        cout << "undistorting ..." << endl;
+        while (!image.empty()) {
+            cap >> image;
+        }
+        initCameraPara(ip_mtx, ip_dist);
+        findUndistortRectifyMap(map1, map2, image.size(), ip_mtx[address], ip_dist[address]);
+        cout << "undistorting successfully ." << endl;
     } else {
         help();
         return 1;
@@ -86,8 +149,8 @@ int main(int argc, char** argv)
             cap >> image;
             if(image.empty()) {
                 cout << "open image error!\n";
-                return 1;
             }
+            undistortImage(image, image, map1, map2);
         } else {
 
         }
