@@ -25,13 +25,17 @@ catkin_package(
 )
 
 include_directories(${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
-add_executable(sendImage src/sendImage.cpp)
-target_link_libraries(sendImage ${OpenCV_LIBS})
-target_link_libraries(sendImage ${catkin_LIBRARIES})
+add_executable(capture_image_from_cameras src/capture_image_from_cameras.cpp)
+target_link_libraries(capture_image_from_cameras ${OpenCV_LIBS})
+target_link_libraries(capture_image_from_cameras ${catkin_LIBRARIES})
 
-add_executable(showImage src/showImage.cpp)
-target_link_libraries(showImage ${OpenCV_LIBS})
-target_link_libraries(showImage ${catkin_LIBRARIES})
+add_executable(capture_image_from_folders src/capture_image_from_folders.cpp)
+target_link_libraries(capture_image_from_folders ${OpenCV_LIBS})
+target_link_libraries(capture_image_from_folders ${catkin_LIBRARIES})
+
+add_executable(receive_image src/receive_image.cpp)
+target_link_libraries(receive_image ${OpenCV_LIBS})
+target_link_libraries(receive_image ${catkin_LIBRARIES})
 
 
 ## System dependencies are found with CMake's conventions
